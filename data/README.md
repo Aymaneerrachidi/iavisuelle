@@ -9,7 +9,7 @@ pip install -e ".[data]"
 python data/download_flickr8k.py
 ```
 
-Le script utilise `kagglehub`, télécharge `dibyansudiptiman/flickr-8k`, détecte les images et la table de légendes, puis produit :
+Le script utilise `kagglehub`, télécharge `adityajn105/flickr8k`, détecte les images et la table de légendes, puis produit :
 
 - `data/processed/flickr8k_all.csv` ;
 - `data/processed/flickr8k_test.csv` (1 000 images, seed 42) ;

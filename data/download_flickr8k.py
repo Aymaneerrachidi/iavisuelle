@@ -11,7 +11,7 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
-DATASET_HANDLE = "dibyansudiptiman/flickr-8k"
+DATASET_HANDLE = "adityajn105/flickr8k"
 
 
 def find_caption_file(root: Path) -> Path:

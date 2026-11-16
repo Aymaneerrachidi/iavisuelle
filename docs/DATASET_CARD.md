@@ -4,7 +4,7 @@ Flickr8k contient environ 8 000 photographies, chacune accompagnée de cinq lég
 
 ## Provenance
 
-Le script télécharge la copie Kaggle `dibyansudiptiman/flickr-8k`. Il enregistre l’URL, la date, les nombres détectés, la seed et le SHA-256 du manifeste dans `data/processed/dataset_metadata.json`.
+Le script télécharge la copie Kaggle `adityajn105/flickr8k`, qui contient les images brutes et `captions.txt`. Il enregistre l’URL, la date, les nombres détectés, la seed et le SHA-256 du manifeste dans `data/processed/dataset_metadata.json`.
 
 ## Schéma normalisé
 

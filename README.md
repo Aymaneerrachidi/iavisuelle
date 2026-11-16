@@ -134,7 +134,7 @@ tests/       tests unitaires et de contrat
 
 - [BLIP Base — carte officielle Hugging Face](https://huggingface.co/Salesforce/blip-image-captioning-base)
 - [GIT Base — carte officielle Hugging Face](https://huggingface.co/microsoft/git-base)
-- [Flickr8k — copie Kaggle utilisée par le script](https://www.kaggle.com/datasets/dibyansudiptiman/flickr-8k)
+- [Flickr8k — copie Kaggle utilisée par le script](https://www.kaggle.com/datasets/adityajn105/flickr8k)
 
 ## Licence
 
