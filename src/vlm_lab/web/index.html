@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Laboratoire reproductible pour comparer des VLMs légers de légendage d’images." />
+    <title>Prism — Laboratoire VLM</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script defer src="/app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Aller au contenu</a>
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Prism, accueil">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>PRISM <small>VLM LAB / P7</small></span>
+      </a>
+      <nav aria-label="Navigation principale">
+        <a href="#tester">Tester</a>
+        <a href="#benchmark">Benchmark</a>
+        <a href="#runs">Expériences</a>
+        <a href="/docs">API</a>
+      </nav>
+      <span class="health" id="health"><i></i> API</span>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Projet 7 · IA générative visuelle</p>
+          <h1>Voir ce que le modèle <em>perd</em> quand il devient plus léger.</h1>
+          <p class="lede">Comparez BLIP et GIT en pleine précision, 8 bits et 4 bits sur les mêmes images. Qualité, latence et mémoire — dans une seule expérience reproductible.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#benchmark">Lancer un benchmark</a>
+            <a class="text-link" href="#method">Lire le protocole <span>↘</span></a>
+          </div>
+        </div>
+        <div class="prism-figure" aria-label="Schéma du protocole de comparaison">
+          <div class="input-ray"><span>IMAGE + TEXTE</span></div>
+          <div class="glass-prism">VLM</div>
+          <div class="rays">
+            <div><span>FP16</span><b>qualité</b></div>
+            <div><span>INT8</span><b>équilibre</b></div>
+            <div><span>INT4</span><b>mémoire</b></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="workspace" id="tester">
+        <div class="section-heading">
+          <div><p class="eyebrow">Inférence unitaire</p><h2>Mettre une image à l’épreuve</h2></div>
+          <p>Une vérification rapide avant de lancer une expérience sur tout le corpus.</p>
+        </div>
+        <div class="test-grid">
+          <form id="caption-form" class="panel upload-panel">
+            <label class="dropzone" id="dropzone" for="image-input">
+              <input id="image-input" name="image" type="file" accept="image/jpeg,image/png,image/webp" required />
+              <img id="preview" alt="Aperçu de l’image sélectionnée" hidden />
+              <span class="drop-copy" id="drop-copy"><b>Déposer une image</b><small>JPEG, PNG ou WebP · 10 Mo max.</small></span>
+            </label>
+            <div class="form-row">
+              <label>Modèle<select name="model_id" id="caption-model"></select></label>
+              <label>Précision<select name="precision"><option value="full">Pleine</option><option value="int8">8 bits</option><option value="int4">4 bits</option></select></label>
+              <label>Beams<input name="num_beams" type="number" min="1" max="8" value="3" /></label>
+            </div>
+            <button class="button primary full" type="submit">Générer la légende</button>
+          </form>
+          <article class="panel result-panel" aria-live="polite">
+            <p class="panel-label">Sortie du modèle</p>
+            <div id="caption-empty" class="empty-state"><span>“</span><p>La légende apparaîtra ici, accompagnée de son coût d’inférence.</p></div>
+            <div id="caption-result" hidden>
+              <blockquote id="caption-text"></blockquote>
+              <dl class="stat-strip">
+                <div><dt>Latence</dt><dd id="stat-latency">—</dd></div>
+                <div><dt>VRAM pic</dt><dd id="stat-vram">—</dd></div>
+                <div><dt>Mémoire proc.</dt><dd id="stat-memory">—</dd></div>
+              </dl>
+            </div>
+            <p class="inline-error" id="caption-error" role="alert"></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="benchmark-section" id="benchmark">
+        <div class="section-heading inverse">
+          <div><p class="eyebrow">Expérience contrôlée</p><h2>Construire la matrice</h2></div>
+          <p>Chaque combinaison utilise exactement le même sous-ensemble et les mêmes paramètres de génération.</p>
+        </div>
+        <form id="experiment-form" class="benchmark-form">
+          <div class="field-wide"><label for="run-name">Nom de l’expérience</label><input id="run-name" name="name" value="Comparaison Flickr8k — baseline" maxlength="100" required /></div>
+          <div class="field-wide"><label for="manifest">Manifest du jeu de données</label><input id="manifest" name="dataset_manifest" value="data/processed/flickr8k_test.csv" placeholder="data/processed/flickr8k_test.csv" required /><small>Chemin serveur vers un CSV ou JSONL normalisé.</small></div>
+          <fieldset><legend>Modèles</legend><div id="model-checks" class="check-grid"></div></fieldset>
+          <fieldset><legend>Précisions</legend><div class="check-grid"><label><input type="checkbox" name="precisions" value="full" checked /><span>Pleine<small>Référence</small></span></label><label><input type="checkbox" name="precisions" value="int8" checked /><span>8 bits<small>CUDA</small></span></label><label><input type="checkbox" name="precisions" value="int4" checked /><span>4 bits<small>CUDA</small></span></label></div></fieldset>
+          <div><label for="sample-limit">Images</label><input id="sample-limit" name="sample_limit" type="number" min="1" max="2000" value="100" /></div>
+          <div><label for="max-tokens">Tokens max.</label><input id="max-tokens" name="max_new_tokens" type="number" min="5" max="128" value="40" /></div>
+          <div><label for="beams">Beams</label><input id="beams" name="num_beams" type="number" min="1" max="8" value="3" /></div>
+          <div class="submit-cell"><button class="button light" type="submit">Mettre en file</button><p id="experiment-error" class="inline-error" role="alert"></p></div>
+        </form>
+      </section>
+
+      <section class="runs-section" id="runs">
+        <div class="section-heading">
+          <div><p class="eyebrow">Historique persistant</p><h2>Expériences</h2></div>
+          <button class="icon-button" id="refresh-runs" type="button">↻ Actualiser</button>
+        </div>
+        <div class="runs-layout">
+          <div class="run-list" id="run-list"><p class="empty-list">Aucune expérience. Lancez votre première matrice ci-dessus.</p></div>
+          <aside class="run-detail" id="run-detail">
+            <p class="panel-label">Détail</p>
+            <div class="empty-state compact"><p>Sélectionnez une expérience pour inspecter sa progression et ses résultats.</p></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="method" id="method">
+        <div><p class="eyebrow">Protocole</p><h2>Une comparaison qui tient debout.</h2></div>
+        <ol>
+          <li><span>01</span><div><b>Échantillon figé</b><p>Mêmes images et cinq références Flickr8k par modèle.</p></div></li>
+          <li><span>02</span><div><b>Quantification isolée</b><p>Seule la précision change ; le décodage reste identique.</p></div></li>
+          <li><span>03</span><div><b>Qualité + coût</b><p>BLEU-4, ROUGE-L, latence p95, RAM et VRAM de pic.</p></div></li>
+          <li><span>04</span><div><b>Traces exportables</b><p>Chaque prédiction reste auditable dans SQLite et CSV.</p></div></li>
+        </ol>
+      </section>
+    </main>
+    <footer><span>PRISM / VLM LAB</span><span>Projet reproductible · API v1</span></footer>
+  </body>
+</html>
+

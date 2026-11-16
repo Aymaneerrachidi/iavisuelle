@@ -1,0 +1,8 @@
+{
+  "name": "Flickr8k 500 — precision matrix",
+  "dataset_manifest": "data/processed/flickr8k_test.csv",
+  "model_ids": ["blip-base", "git-base"],
+  "precisions": ["full", "int8", "int4"],
+  "sample_limit": 500,
+  "options": {"max_new_tokens": 40, "num_beams": 3, "temperature": 1.0}
+}
